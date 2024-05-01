@@ -1,7 +1,12 @@
 import { Stage, Container, Sprite, Text, useTick } from '@pixi/react'
 import { useState, createContext, useContext, useCallback, useEffect } from 'react'
 import { TextStyle } from 'pixi.js'
-import {TGameState, TPlayerMovement, TypeCoordinates2D, TypeCoordinateX, TypeCoordinateY} from "../lib/types";
+import {
+  TGameState,
+  TypeCoordinates2D,
+  TypeCoordinateX,
+  TypeCoordinateY
+} from '../lib/types'
 // import StaticIceAsset from './static_ice.svg?url'
 //
 // console.log('ice?!', JSON.stringify(StaticIceAsset))
@@ -70,48 +75,18 @@ const Player = () => {
     y: 0
   })
 
+  const [isMovingUp, setIsMovingUp] = useState<boolean>(false)
+  const [isMovingDown, setIsMovingDown] = useState<boolean>(false)
+  const [isMovingLeft, setIsMovingLeft] = useState<boolean>(false)
+  const [isMovingRight, setIsMovingRight] = useState<boolean>(false)
+
   const gameState = useContext(GameStateContext);
-  const [movement, setMovement] = useState<TPlayerMovement>({
-    direction: 'right',
-    velocity: { x: 0, y: 0 },
-  })
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    let movementState: TPlayerMovement;
-
-    if (e.key === 'd' || e.key === 'ArrowRight') {
-      movementState = {
-        direction: 'right',
-        velocity: { x: 1, y: 0 },//todo: coll check (x4)
-      }
-    } else if (e.key === 'a' || e.key === 'ArrowLeft') {
-      movementState = {
-        direction: 'left',
-        velocity: { x: -1, y: 0 },
-      }
-    } else if (e.key === 'w' || e.key === 'ArrowUp') {
-      movementState = {
-        direction: 'up',
-        velocity: { x: 0, y: -1 },
-      }
-    } else if (e.key === 's' || e.key === 'ArrowDown') {
-      movementState = {
-        direction: 'down',
-        velocity: { x: 0, y: 1 },
-      }
-    }
-
-    setMovement((prevState) => {
-      if (movementState) {
-        if (
-          prevState.velocity.x !== movementState.velocity.x ||
-          prevState.velocity.y !== movementState.velocity.y
-        ) {
-          return movementState
-        }
-      }
-      return prevState
-    })
+    if (e.key === 'w' || e.key === 'ArrowUp') return setIsMovingUp(true)
+    if (e.key === 'a' || e.key === 'ArrowLeft') return setIsMovingLeft(true)
+    if (e.key === 's' || e.key === 'ArrowDown') return setIsMovingDown(true)
+    if (e.key === 'd' || e.key === 'ArrowRight') return setIsMovingRight(true)
   }, [])
 
   useEffect(() => {
@@ -122,18 +97,10 @@ const Player = () => {
   }, [handleKeyDown])
 
   const handleKeyUp = useCallback((e: KeyboardEvent) => {
-    if (
-      (e.key === 'd' || e.key === 'ArrowRight') ||
-      (e.key === 'a' || e.key === 'ArrowLeft') ||
-      (e.key === 'w' || e.key === 'ArrowUp') ||
-      (e.key === 's' || e.key === 'ArrowDown')
-    ) {
-      setMovement((prevState) => ({
-        direction: prevState.direction,
-        velocity: { x: 0, y: 0 }
-      }))
-    }
-
+    if (e.key === 'w' || e.key === 'ArrowUp') return setIsMovingUp(false)
+    if (e.key === 'a' || e.key === 'ArrowLeft') return setIsMovingLeft(false)
+    if (e.key === 's' || e.key === 'ArrowDown') return setIsMovingDown(false)
+    if (e.key === 'd' || e.key === 'ArrowRight') return setIsMovingRight(false)
   }, [])
 
   useEffect(() => {
@@ -143,12 +110,19 @@ const Player = () => {
   }, [handleKeyUp])
 
   useTick((delta, ticker) => {
-    if (movement.velocity.x !== 0 || movement.velocity.y !== 0) {
+    const velocity: TypeCoordinates2D['object'] = { x: 0, y: 0 }
+
+    if (isMovingUp) velocity.y += -1
+    if (isMovingLeft) velocity.x += -1
+    if (isMovingDown) velocity.y += 1
+    if (isMovingRight) velocity.x += 1
+
+    if (velocity.x !== 0 || velocity.y !== 0) {
       setPosition((prevState) => {
         const justOverTheEdge = 0.0000001
         const targetAbsoluteCoordinates = [
-          Math.round(prevState.x + movement.velocity.x*(0.5+justOverTheEdge)),
-          Math.round(prevState.y + movement.velocity.y*(0.5+justOverTheEdge))
+          Math.round(prevState.x + velocity.x*(0.5+justOverTheEdge)),
+          Math.round(prevState.y + velocity.y*(0.5+justOverTheEdge))
         ]
 
         const targetBlock = gameState?.grid[positionToIndex(
@@ -157,7 +131,7 @@ const Player = () => {
         )]
 
         const calculatedVelocity = {
-          ...movement.velocity
+          ...velocity
         }
 
         if (targetBlock !== false) {
@@ -183,6 +157,9 @@ const Player = () => {
     }
   })
 
+  let rotation = 0
+  // todo: calculate rotation
+
   return (
     <Container x={position.x*gameOptions.graphics.block_size_px+gameOptions.graphics.block_size_px/2} y={position.y*gameOptions.graphics.block_size_px+gameOptions.graphics.block_size_px/2}>
       <Text text={`Player 1 ${position.x} ${position.y}`} y={-gameOptions.graphics.block_size_px*0.6} anchor={{ x: 0.5, y: 0.5 }} style={
@@ -197,20 +174,21 @@ const Player = () => {
         height={gameOptions.graphics.block_size_px*0.8}
         width={gameOptions.graphics.block_size_px*0.8}
         anchor={{x: 0.5, y: 0.5}}
+        angle={rotation}
       />
-      <Text
-        text={`${JSON.stringify(movement, null, 2)}`}
-        x={gameOptions.graphics.block_size_px}
-        y={gameOptions.graphics.block_size_px}
-        anchor={{ x: 1, y: 1 }}
-        style={
-          new TextStyle({
-            fontSize: 14,
-            stroke: '#00ff00',
-            strokeThickness: 3,
-          })
-        }
-      />
+      {/*<Text*/}
+      {/*  text={`${JSON.stringify(movement, null, 2)}`}*/}
+      {/*  x={gameOptions.graphics.block_size_px}*/}
+      {/*  y={gameOptions.graphics.block_size_px}*/}
+      {/*  anchor={{ x: 1, y: 1 }}*/}
+      {/*  style={*/}
+      {/*    new TextStyle({*/}
+      {/*      fontSize: 14,*/}
+      {/*      stroke: '#00ff00',*/}
+      {/*      strokeThickness: 3,*/}
+      {/*    })*/}
+      {/*  }*/}
+      {/*/>*/}
     </Container>
   )
 }

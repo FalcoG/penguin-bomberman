@@ -6,9 +6,4 @@ export interface TypeCoordinates2D {
   array: [number, number],
 }
 
-export type TPlayerMovement = {
-  direction: 'left' | 'right' | 'up' | 'down',
-  velocity: TypeCoordinates2D['object']
-}
-
 export interface TGameState { grid: Array<'immutable_ice' | false> }
