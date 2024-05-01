@@ -3,10 +3,11 @@ import { useState, createContext, useContext, useCallback, useEffect } from 'rea
 import { TextStyle } from 'pixi.js'
 import {
   TGameState,
-  TypeCoordinates2D,
+  TPoint,
   TypeCoordinateX,
   TypeCoordinateY
 } from '../lib/types'
+import { distancePointToPoint } from './utils'
 // import StaticIceAsset from './static_ice.svg?url'
 //
 // console.log('ice?!', JSON.stringify(StaticIceAsset))
@@ -29,7 +30,7 @@ const gameOptions = {
   movement_collision_margin: 0.1, // must be below 0.5!
 }
 
-const positionToCoords = (x: TypeCoordinateX, y: TypeCoordinateY): TypeCoordinates2D['object'] => {
+const positionToCoords = (x: TypeCoordinateX, y: TypeCoordinateY): TPoint => {
   return {
     x: x * gameOptions.graphics.block_size_px + gameOptions.graphics.block_size_px/2,
     y: y * gameOptions.graphics.block_size_px + gameOptions.graphics.block_size_px/2,
@@ -43,7 +44,7 @@ const indexToPosition = (index: number) => {
   return { x, y }
 }
 
-const positionToIndex = (x: TypeCoordinateX, y: TypeCoordinateY) => {
+const pointToIndex = ({ x, y }: TPoint) => {
   const flatX = Math.round(x)
   const flatY = Math.round(y)
   if (flatX >= gameOptions.grid.size.width) return -1
@@ -76,8 +77,8 @@ const Player = () => {
   })
 
   const [isMovingUp, setIsMovingUp] = useState<boolean>(false)
-  const [isMovingDown, setIsMovingDown] = useState<boolean>(false)
   const [isMovingLeft, setIsMovingLeft] = useState<boolean>(false)
+  const [isMovingDown, setIsMovingDown] = useState<boolean>(false)
   const [isMovingRight, setIsMovingRight] = useState<boolean>(false)
 
   const gameState = useContext(GameStateContext);
@@ -110,7 +111,7 @@ const Player = () => {
   }, [handleKeyUp])
 
   useTick((delta, ticker) => {
-    const velocity: TypeCoordinates2D['object'] = { x: 0, y: 0 }
+    const velocity: TPoint = { x: 0, y: 0 }
 
     if (isMovingUp) velocity.y += -1
     if (isMovingLeft) velocity.x += -1
@@ -120,38 +121,56 @@ const Player = () => {
     if (velocity.x !== 0 || velocity.y !== 0) {
       setPosition((prevState) => {
         const justOverTheEdge = 0.0000001
-        const targetAbsoluteCoordinates = [
-          Math.round(prevState.x + velocity.x*(0.5+justOverTheEdge)),
-          Math.round(prevState.y + velocity.y*(0.5+justOverTheEdge))
-        ]
+        let targets: Array<{ point: TPoint, velocity: TPoint }> = []
 
-        const targetBlock = gameState?.grid[positionToIndex(
-          targetAbsoluteCoordinates[0],
-          targetAbsoluteCoordinates[1]
-        )]
-
-        const calculatedVelocity = {
-          ...velocity
+        if (velocity.y !== 0) {
+          targets.push({
+            point: {
+              x: Math.round(prevState.x),
+              y: Math.round(prevState.y + velocity.y)
+            },
+            velocity: { x: 0, y: velocity.y }
+          })
         }
 
-        if (targetBlock !== false) {
-          calculatedVelocity.x = 0
-          calculatedVelocity.y = 0
+        if (velocity.x !== 0) {
+          targets.push({
+            point: {
+              x: Math.round(prevState.x + velocity.x),
+              y: Math.round(prevState.y)
+            },
+            velocity: { x: velocity.x, y: 0 }
+          })
         }
+
+        // sort for the closest target
+        targets.sort((a, b) => {
+          return distancePointToPoint(prevState, a.point) - distancePointToPoint(prevState, b.point)
+        })
+
+        // find the closest walkable block
+        const targetBlockFind = targets.find((target) => {
+          const blockPoint = {
+            x: Math.round(prevState.x + target.velocity.x * (0.5 + justOverTheEdge)),
+            y: Math.round(prevState.y + target.velocity.y * (0.5 + justOverTheEdge))
+          }
+          return gameState?.grid[pointToIndex(blockPoint)] === false
+        })
 
         const speedMod = 1
 
-        const x = calculatedVelocity.y !== 0
-          ? Math.round(prevState.x)
-          : prevState.x + ((calculatedVelocity.x * speedMod * gameOptions.movement_speed) * delta)
-
-        const y = calculatedVelocity.x !== 0
-          ? Math.round(prevState.y)
-          : prevState.y + ((calculatedVelocity.y * speedMod * gameOptions.movement_speed) * delta)
-
-        return {
-          x,
-          y,
+        // prevent state spam
+        if (!targetBlockFind) {
+          return prevState
+        } else {
+          return {
+            x: targetBlockFind.velocity.y !== 0
+              ? Math.round(prevState.x)
+              : prevState.x + ((targetBlockFind.velocity.x * speedMod * gameOptions.movement_speed) * delta),
+            y: targetBlockFind.velocity.x !== 0
+              ? Math.round(prevState.y)
+              : prevState.y + ((targetBlockFind.velocity.y * speedMod * gameOptions.movement_speed) * delta)
+          }
         }
       })
     }
@@ -193,7 +212,7 @@ const Player = () => {
   )
 }
 
-const StaticIce = ({ x, y }: TypeCoordinates2D['object']) => {
+const StaticIce = ({ x, y }: TPoint) => {
   return (
     <Sprite
       image="https://minecraft.wiki/images/BlockSprite_packed-ice.png?d59ba"
@@ -207,7 +226,7 @@ const StaticIce = ({ x, y }: TypeCoordinates2D['object']) => {
   )
 }
 
-const Bomb = ({ x, y }: TypeCoordinates2D['object']) => {
+const Bomb = ({ x, y }: TPoint) => {
   return (
     <Sprite
       image="https://minecraft.wiki/images/BlockSprite_tnt.png?147d9"
