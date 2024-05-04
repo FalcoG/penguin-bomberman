@@ -1,6 +1,7 @@
 import { Stage, Container, Sprite, Text, useTick } from '@pixi/react'
 import { useState, createContext, useContext, useCallback, useEffect } from 'react'
 import { TextStyle } from 'pixi.js'
+import { OutlineFilter } from 'pixi-filters'
 import {
   TGameState,
   TPoint,
@@ -8,9 +9,8 @@ import {
   TypeCoordinateY
 } from '../lib/types'
 import { distancePointToPoint } from './utils'
-// import StaticIceAsset from './static_ice.svg?url'
-//
-// console.log('ice?!', JSON.stringify(StaticIceAsset))
+import assetsLoader from './assets'
+import AssetsContext from './AssetsContext'
 
 const gameOptions = {
   graphics: {
@@ -213,11 +213,11 @@ const Player = () => {
 }
 
 const StaticIce = ({ x, y }: TPoint) => {
+  const assets = useContext(AssetsContext)
+
   return (
     <Sprite
-      image="https://minecraft.wiki/images/BlockSprite_packed-ice.png?d59ba"
-      // image={StaticIceAsset}
-      // image='./static_ice.svg'
+      texture={assets?.static_ice}
       height={gameOptions.graphics.block_size_px}
       width={gameOptions.graphics.block_size_px}
       anchor={{x: 0.5, y: 0.5}}
@@ -227,13 +227,16 @@ const StaticIce = ({ x, y }: TPoint) => {
 }
 
 const Bomb = ({ x, y }: TPoint) => {
+  const assets = useContext(AssetsContext)
+
   return (
     <Sprite
-      image="https://minecraft.wiki/images/BlockSprite_tnt.png?147d9"
-      height={gameOptions.graphics.block_size_px*0.8}
-      width={gameOptions.graphics.block_size_px*0.8}
+      texture={assets?.bomb}
+      height={gameOptions.graphics.block_size_px*0.75}
+      width={gameOptions.graphics.block_size_px*0.75}
       anchor={{x: 0.5, y: 0.5}}
       {...positionToCoords(x, y)}
+      filters={[new OutlineFilter(3, 0xFF0000)]}
     />
   )
 }
@@ -241,7 +244,6 @@ const Bomb = ({ x, y }: TPoint) => {
 const GameStateContext = createContext<TGameState | null>(null)
 
 export const App = () => {
-  console.log('App')
   const [grid, setGrid] = useState(() => {
     let newGridLayout: TGameState['grid'] = []
 
@@ -262,35 +264,52 @@ export const App = () => {
     return newGridLayout
   })
 
-  return (
-    <Stage
-      options={{ background: 0x222222, resizeTo: window }}
-      width={window.innerWidth}
-      height={window.innerHeight}
-    >
-      <GameStateContext.Provider value={{grid}}>
-        <Bunny />
-        <Container x={0} y={0}>
-          {grid.map((cell, index) => {
-            const { x, y } = indexToPosition(index)
+  const [assets, setAssets] = useState<Awaited<ReturnType<typeof assetsLoader>> | undefined>(undefined)
 
-            if (cell === 'immutable_ice') {
-              // console.log('ice ice', x, y)
-              return <StaticIce x={x} y={y} key={`${x}_${y}`} />
-            }
+  useEffect(() => {
+    console.log('Assets loader')
+    assetsLoader()
+      .then((assets) => {
+        setAssets(assets)
+      })
+  }, []);
 
-            return null
-          })}
-          <Bomb x={5} y={6} />
-          <Player />
-        </Container>
+  return assets
+    ? (
+      <Stage
+        options={{
+          background: 0x222222,
+          resizeTo: window,
+          resolution: window.devicePixelRatio
+        }}
+        width={window.innerWidth}
+        height={window.innerHeight}
+      >
+        <AssetsContext.Provider value={assets}>
+          <GameStateContext.Provider value={{grid}}>
+            <Bunny />
+            <Container x={0} y={0}>
+              {grid.map((cell, index) => {
+                const { x, y } = indexToPosition(index)
 
-        <Container x={400} y={330}>
-          <Text text="Hello World" anchor={{ x: 0.5, y: 0.5 }} />
-        </Container>
-      </GameStateContext.Provider>
-    </Stage>
-  );
+                if (cell === 'immutable_ice') {
+                  // console.log('ice ice', x, y)
+                  return <StaticIce x={x} y={y} key={`${x}_${y}`} />
+                }
+
+                return null
+              })}
+              <Bomb x={5} y={6} />
+              <Player />
+            </Container>
+
+            <Container x={400} y={330}>
+              <Text text="Hello World" anchor={{ x: 0.5, y: 0.5 }} />
+            </Container>
+          </GameStateContext.Provider>
+        </AssetsContext.Provider>
+      </Stage>
+  ) : <div>Loading game...</div>;
 };
 
 export default App
