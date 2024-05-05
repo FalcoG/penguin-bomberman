@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import assetsLoader from './assets'
+import assetsLoader from '../assets'
 
 const AssetsContext = createContext<Awaited<ReturnType<typeof assetsLoader>> | undefined>(undefined)
 
