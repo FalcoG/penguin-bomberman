@@ -27,7 +27,7 @@ const gameOptions = {
     ]
   }, // w*h
   movement_speed: 0.05,
-  movement_collision_margin: 0.1, // must be below 0.5!
+  movement_collision_margin: 0.2, // must be below 0.5!
 }
 
 const positionToCoords = (x: TypeCoordinateX, y: TypeCoordinateY): TPoint => {
@@ -84,10 +84,16 @@ const Player = () => {
   const gameState = useContext(GameStateContext);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.repeat) return // not interested in duplicate events
+
     if (e.key === 'w' || e.key === 'ArrowUp') return setIsMovingUp(true)
     if (e.key === 'a' || e.key === 'ArrowLeft') return setIsMovingLeft(true)
     if (e.key === 's' || e.key === 'ArrowDown') return setIsMovingDown(true)
     if (e.key === 'd' || e.key === 'ArrowRight') return setIsMovingRight(true)
+    if (e.key === ' ') {
+      console.log('bomb!')
+      return
+    }
   }, [])
 
   useEffect(() => {
@@ -150,11 +156,40 @@ const Player = () => {
 
         // find the closest walkable block
         const targetBlockFind = targets.find((target) => {
-          const blockPoint = {
-            x: Math.round(prevState.x + target.velocity.x * (0.5 + justOverTheEdge)),
-            y: Math.round(prevState.y + target.velocity.y * (0.5 + justOverTheEdge))
+          // center of the direction the player is going
+          const centerBlockDirection = {
+            x: prevState.x + target.velocity.x * (0.5 + justOverTheEdge),
+            y: prevState.y + target.velocity.y * (0.5 + justOverTheEdge)
           }
-          return gameState?.grid[pointToIndex(blockPoint)] === false
+
+          let collisionPoints= [ centerBlockDirection ]
+
+          if (target.velocity.x === 0) {
+            collisionPoints.push({
+              x: centerBlockDirection.x + (0.5-gameOptions.movement_collision_margin),
+              y: centerBlockDirection.y,
+            })
+            collisionPoints.push({
+              x: centerBlockDirection.x - (0.5-gameOptions.movement_collision_margin),
+              y: centerBlockDirection.y,
+            })
+          } else if (target.velocity.y === 0) {
+            collisionPoints.push({
+              x: centerBlockDirection.x,
+              y: centerBlockDirection.y + (0.5-gameOptions.movement_collision_margin),
+            })
+            collisionPoints.push({
+              x: centerBlockDirection.x,
+              y: centerBlockDirection.y - (0.5-gameOptions.movement_collision_margin),
+            })
+          }
+
+          const result = collisionPoints.find((point) => {
+            // can't move if anything other than 'false' (free path) shows up
+            return gameState?.grid[pointToIndex(point)] !== false
+          });
+
+          return result === undefined
         })
 
         const speedMod = 1
