@@ -5,9 +5,10 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--color-shade-6);
-  color: var(--color-split-complementary-2-shade-1);
+  background: linear-gradient(to right, var(--color-shade-3), var(--color-shade-5));
+  color: var(--color-shade-5);
   overflow: hidden;
+  font-size: 1.2em;
 }
 
 code {
@@ -17,6 +18,7 @@ code {
 
 :root {
   /* main color set */
+  --color-shade-0: #FFFFFF;
 
   /* https://www.reasonable.work/colors/azure/ */
   --color-shade-1: #E8F2FF;
@@ -49,4 +51,48 @@ code {
   --color-split-complementary-2-shade-4: #AC5C00;
   --color-split-complementary-2-shade-5: #633300;
   --color-split-complementary-2-shade-6: #371D00;
+
+  --spacing-outline: 0.25em;
+}
+
+input, button {
+  font-size: 1.4rem;
+  border-radius: 2em;
+  padding: 1em;
+  border: .2em solid black;
+  background: var(--color-shade-0);
+  font-weight: bold;
+}
+
+*:focus {
+  outline: var(--spacing-outline) solid var(--color-split-complementary-1-shade-2);
+}
+
+input {
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  font-size: 1.4rem;
+  margin-bottom: .3rem;
+}
+
+button {
+  background: var(--color-split-complementary-2-shade-3);
+  color: var(--color-shade-0);
+  cursor: pointer;
+}
+
+hr {
+  border: .1rem solid var(--color-shade-6);
+}
+
+main {
+  max-width: 32em;
+  border: .2em solid var(--color-shade-4);
+  background: var(--color-shade-0);
+  border-radius: 1em;
+  padding: 1em;
+  margin: 1em auto;
 }

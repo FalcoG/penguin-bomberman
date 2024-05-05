@@ -11,6 +11,8 @@ import Bunny from './lib/components/game/Bunny'
 import StaticIce from './lib/components/game/StaticIce'
 import GameStateContext from './lib/GameStateContext'
 import Player from './lib/components/game/Player'
+import PreflightForm from './lib/components/PreflightForm'
+import Key from './lib/components/Key'
 
 export const App = () => {
   const [grid, setGrid] = useState(() => {
@@ -37,50 +39,56 @@ export const App = () => {
 
   useEffect(() => {
     console.log('Assets loader')
-    assetsLoader()
-      .then((assets) => {
-        setAssets(assets)
-      })
+    // todo: temporarily disabled to show main UI
+    // assetsLoader()
+    //   .then((assets) => {
+    //     setAssets(assets)
+    //   })
   }, [])
 
-  return assets ? (
-    <main>
-      <Header/>
-      <Stage
-        options={{
-          background: 0x222222,
-          resizeTo: window,
-          resolution: window.devicePixelRatio
-        }}
-        width={window.innerWidth}
-        height={window.innerHeight}
-      >
-        <AssetsContext.Provider value={assets}>
-          <GameStateContext.Provider value={{ grid }}>
-            <Bunny/>
-            <Container x={0} y={0}>
-              {grid.map((cell, index) => {
-                const { x, y } = indexToPosition(index)
+  return <main>
+    <Header/>
+    <h2>Welcome!</h2>
+    <p><u>Bombs</u> are used to <u>clear a path</u> to your opponent, as well as to <u>defeat your opponent</u></p>
 
-                if (cell === 'immutable_ice') {
-                  // console.log('ice ice', x, y)
-                  return <StaticIce x={x} y={y} key={`${x}_${y}`}/>
-                }
+    <p>Press <Key>spacebar</Key> to deploy bombs</p>
+    <p>Use <Key>w</Key> <Key>a</Key> <Key>s</Key> <Key>d</Key> or <b>arrow keys</b> to move</p>
+    <hr/>
+    <PreflightForm />
+    {assets && <Stage
+      options={{
+        background: 0x222222,
+        resizeTo: window,
+        resolution: window.devicePixelRatio
+      }}
+      width={window.innerWidth}
+      height={window.innerHeight}
+    >
+      <AssetsContext.Provider value={assets}>
+        <GameStateContext.Provider value={{ grid }}>
+          <Bunny/>
+          <Container x={0} y={0}>
+            {grid.map((cell, index) => {
+              const { x, y } = indexToPosition(index)
 
-                return null
-              })}
-              <Bomb x={5} y={6}/>
-              <Player/>
-            </Container>
+              if (cell === 'immutable_ice') {
+                // console.log('ice ice', x, y)
+                return <StaticIce x={x} y={y} key={`${x}_${y}`}/>
+              }
 
-            <Container x={400} y={330}>
-              <Text text="Hello World" anchor={{ x: 0.5, y: 0.5 }}/>
-            </Container>
-          </GameStateContext.Provider>
-        </AssetsContext.Provider>
-      </Stage>
-    </main>
-  ) : <div>Loading game...</div>
+              return null
+            })}
+            <Bomb x={5} y={6}/>
+            <Player/>
+          </Container>
+
+          <Container x={400} y={330}>
+            <Text text="Hello World" anchor={{ x: 0.5, y: 0.5 }}/>
+          </Container>
+        </GameStateContext.Provider>
+      </AssetsContext.Provider>
+    </Stage>}
+  </main>
 }
 
 export default App
