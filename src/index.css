@@ -26,6 +26,7 @@ input, button {
   padding: 1em;
   border: .2em solid var(--color-shade-7);
   background: var(--color-shade-0);
+  color: var(--color-shade-7);
   font-weight: bold;
 }
 
@@ -38,7 +39,6 @@ input, button {
 }
 
 input {
-  color: var(--color-shade-7);
 }
 
 label {

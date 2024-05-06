@@ -1,4 +1,5 @@
 import InputFieldDescription from './form/InputFieldDescription'
+import InputFieldError from './form/InputFieldError'
 
 const PreflightForm = () => {
   return <form>
@@ -11,6 +12,8 @@ const PreflightForm = () => {
     <input type="text" id="username" name="username"/>
     {` `}
     <button>Join lobby</button>
+    <InputFieldError>Your nickname must only contain alphanumeric characters</InputFieldError>
+    <InputFieldError>The name <b>"replaceme"</b> is already being used</InputFieldError>
   </form>
 }
 

@@ -13,6 +13,7 @@ import GameStateContext from './lib/GameStateContext'
 import Player from './lib/components/game/Player'
 import PreflightForm from './lib/components/PreflightForm'
 import Key from './lib/components/Key'
+import Notification from './lib/components/Notification'
 
 export const App = () => {
   const [grid, setGrid] = useState(() => {
@@ -54,6 +55,12 @@ export const App = () => {
     <p>Press <Key>spacebar</Key> to deploy bombs</p>
     <p>Use <Key>w</Key> <Key>a</Key> <Key>s</Key> <Key>d</Key> or <b>arrow keys</b> to move</p>
     <hr/>
+    {/*<Notification type="info">*/}
+    {/*  Connecting to the server..*/}
+    {/*</Notification>*/}
+    {/*<Notification type="error">*/}
+    {/*  Unable to connect to the server!*/}
+    {/*</Notification>*/}
     <PreflightForm />
     {assets && <Stage
       options={{
