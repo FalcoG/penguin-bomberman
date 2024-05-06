@@ -1,6 +1,6 @@
 {
   "name": "penguin-bomberman-client",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "private": true,
   "dependencies": {
     "@pixi/react": "^7.1.2",

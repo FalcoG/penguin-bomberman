@@ -1,0 +1,7 @@
+{
+  "imports": {},
+  "tasks": {
+    "dev": "deno run --allow-net --check src/index.ts",
+    "lint": "deno check src/index.ts"
+  }
+}
