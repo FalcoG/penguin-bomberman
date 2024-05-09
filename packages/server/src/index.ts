@@ -1,4 +1,4 @@
-import { z } from 'https://deno.land/x/zod/mod.ts'
+import { z } from 'zod'
 
 const User = z.object({
   username: z.string(),
