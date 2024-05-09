@@ -3,8 +3,8 @@
     "zod": "https://deno.land/x/zod/mod.ts"
   },
   "tasks": {
-    "server:run": "deno run --allow-net --check packages/server/src/index.ts",
-    "server:watch": "deno run --watch --allow-net --check packages/server/src/index.ts",
-    "lint": "deno check packages/server/src/index.ts && deno check packages/shared/src/mod.ts"
+    "server:run": "deno run --allow-net --check packages/server/index.ts",
+    "server:watch": "deno run --watch --allow-net --check packages/server/index.ts",
+    "lint": "deno check packages/server/index.ts && deno check packages/shared/mod.ts"
   }
 }
