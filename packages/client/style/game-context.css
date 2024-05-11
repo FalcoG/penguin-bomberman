@@ -1,0 +1,15 @@
+#screen canvas {
+    margin: auto;
+    /* Hide the gap for font descenders. */
+    display: block;
+}
+
+body {
+    /* keeping scrollbars makes the canvas resize unreliable */
+    overflow: hidden;
+}
+
+#root {
+    /* react app should take all the height */
+    height: 100vh;
+}

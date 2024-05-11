@@ -1,0 +1,112 @@
+@import url('./external/reasonable-colors.css');
+
+:root {
+  /* main color set */
+  --color-shade-0: #FFFFFF;
+  --color-shade-7: #000000;
+  @media (prefers-color-scheme: dark) {
+    --color-shade-0: #000000;
+    --color-shade-7: #FFFFFF;
+  }
+
+  /* https://www.reasonable.work/colors/azure/ */
+  --color-shade-1: var(--color-azure-1);
+  --color-shade-2: var(--color-azure-2);
+  --color-shade-3: var(--color-azure-3);
+  --color-shade-4: var(--color-azure-4);
+  --color-shade-5: var(--color-azure-5);
+  --color-shade-6: var(--color-azure-6);
+
+  @media (prefers-color-scheme: dark) {
+    --color-shade-6: var(--color-azure-1);
+    --color-shade-5: var(--color-azure-2);
+    --color-shade-4: var(--color-azure-3);
+    --color-shade-3: var(--color-azure-4);
+    --color-shade-2: var(--color-azure-5);
+    --color-shade-1: var(--color-azure-6);
+  }
+
+  /* https://www.reasonable.work/colors/amber/ */
+  --color-complementary-shade-1: var(--color-amber-1);
+  --color-complementary-shade-2: var(--color-amber-2);
+  --color-complementary-shade-3: var(--color-amber-3);
+  --color-complementary-shade-4: var(--color-amber-4);
+  --color-complementary-shade-5: var(--color-amber-5);
+  --color-complementary-shade-6: var(--color-amber-6);
+
+  @media (prefers-color-scheme: dark) {
+    --color-complementary-shade-6: var(--color-amber-1);
+    --color-complementary-shade-5: var(--color-amber-2);
+    --color-complementary-shade-4: var(--color-amber-3);
+    --color-complementary-shade-3: var(--color-amber-4);
+    --color-complementary-shade-2: var(--color-amber-5);
+    --color-complementary-shade-1: var(--color-amber-6);
+  }
+
+  /* https://www.reasonable.work/colors/yellow */
+  --color-split-complementary-1-shade-1: var(--color-yellow-1);
+  --color-split-complementary-1-shade-2: var(--color-yellow-2);
+  --color-split-complementary-1-shade-3: var(--color-yellow-3);
+  --color-split-complementary-1-shade-4: var(--color-yellow-4);
+  --color-split-complementary-1-shade-5: var(--color-yellow-5);
+  --color-split-complementary-1-shade-6: var(--color-yellow-6);
+
+  @media (prefers-color-scheme: dark) {
+    --color-split-complementary-1-shade-6: var(--color-yellow-1);
+    --color-split-complementary-1-shade-5: var(--color-yellow-2);
+    --color-split-complementary-1-shade-4: var(--color-yellow-3);
+    --color-split-complementary-1-shade-3: var(--color-yellow-4);
+    --color-split-complementary-1-shade-2: var(--color-yellow-5);
+    --color-split-complementary-1-shade-1: var(--color-yellow-6);
+  }
+
+  --color-split-complementary-2-shade-1: var(--color-cinnamon-1);
+  --color-split-complementary-2-shade-2: var(--color-cinnamon-2);
+  --color-split-complementary-2-shade-3: var(--color-cinnamon-3);
+  --color-split-complementary-2-shade-4: var(--color-cinnamon-4);
+  --color-split-complementary-2-shade-5: var(--color-cinnamon-5);
+  --color-split-complementary-2-shade-6: var(--color-cinnamon-6);
+
+  @media (prefers-color-scheme: dark) {
+    --color-split-complementary-2-shade-6: var(--color-cinnamon-1);
+    --color-split-complementary-2-shade-5: var(--color-cinnamon-2);
+    --color-split-complementary-2-shade-4: var(--color-cinnamon-3);
+    --color-split-complementary-2-shade-3: var(--color-cinnamon-4);
+    --color-split-complementary-2-shade-2: var(--color-cinnamon-5);
+    --color-split-complementary-2-shade-1: var(--color-cinnamon-6);
+  }
+
+  --color-triadic_1-1: var(--color-raspberry-1);
+  --color-triadic_1-2: var(--color-raspberry-2);
+  --color-triadic_1-3: var(--color-raspberry-3);
+  --color-triadic_1-4: var(--color-raspberry-4);
+  --color-triadic_1-5: var(--color-raspberry-5);
+  --color-triadic_1-6: var(--color-raspberry-6);
+
+  @media (prefers-color-scheme: dark) {
+    --color-triadic_1-6: var(--color-raspberry-1);
+    --color-triadic_1-5: var(--color-raspberry-2);
+    --color-triadic_1-4: var(--color-raspberry-3);
+    --color-triadic_1-3: var(--color-raspberry-4);
+    --color-triadic_1-2: var(--color-raspberry-5);
+    --color-triadic_1-1: var(--color-raspberry-6);
+  }
+
+  --color-triadic_2-1: var(--color-green-1);
+  --color-triadic_2-2: var(--color-green-2);
+  --color-triadic_2-3: var(--color-green-3);
+  --color-triadic_2-4: var(--color-green-4);
+  --color-triadic_2-5: var(--color-green-5);
+  --color-triadic_2-6: var(--color-green-6);
+
+  @media (prefers-color-scheme: dark) {
+    --color-triadic_2-6: var(--color-green-1);
+    --color-triadic_2-5: var(--color-green-2);
+    --color-triadic_2-4: var(--color-green-3);
+    --color-triadic_2-3: var(--color-green-4);
+    --color-triadic_2-2: var(--color-green-5);
+    --color-triadic_2-1: var(--color-green-6);
+  }
+
+  --spacing-outline: 0.25em;
+}

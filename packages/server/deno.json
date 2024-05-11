@@ -1,0 +1,10 @@
+{
+  "imports": {
+    "zod": "https://deno.land/x/zod/mod.ts"
+  },
+  "tasks": {
+    "run": "deno run --allow-net --check ./index.ts",
+    "watch": "deno run --watch --allow-net --check ./index.ts",
+    "lint": "deno check ./index.ts"
+  }
+}
