@@ -13,7 +13,10 @@ const config = {
     ]
   },
   "movement_speed": 0.01,
-  "movement_collision_margin": 0.2
+  "movement_collision_margin": 0.2,
+  "multiplayer": {
+    "max_messages": 50
+  }
 }
 
 export default config

@@ -2,6 +2,7 @@ import Layout from '~/components/Layout.tsx'
 import Panel from '~/components/Panel.tsx'
 import { useContext } from 'react'
 import WebSocketContext from '~/lib/context/WebSocketContext.ts'
+import ChatForm from '~/components/ChatForm.tsx'
 
 export default function Lobby() {
   const { messages, players } = useContext(WebSocketContext)
@@ -27,8 +28,14 @@ export default function Lobby() {
       <Panel style={{ gridArea: 'chat' }}>
         <h2>Chat</h2>
         <ul>
-          {messages.map(({ type, message }, index) => (<li key={index}>[<b>{type}</b>] {message}</li>))}
+          {messages.map(({ type, message, origin }, index) => {
+            if (type === 'player') {
+              return <li key={index}><b>{origin}</b>: {message}</li>
+            }
+            return <li key={index}>[<b>{type}</b>] {message}</li>
+          })}
         </ul>
+        <ChatForm/>
       </Panel>
     </div>
   </Layout>

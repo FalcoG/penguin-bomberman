@@ -9,6 +9,7 @@ import Panel from '~/components/Panel.tsx'
 import { basePacket, inbound, outbound } from '~/types/packets.ts'
 import Lobby from '~/components/Lobby.tsx'
 import { TWebSocketContext } from '~/lib/context/WebSocketContext.ts'
+import config from "~/lib/config.ts";
 
 export default function Index() {
   const [webSocket, setWebSocket] = useState<WebSocket | undefined>()
@@ -55,7 +56,14 @@ export default function Index() {
         if (status === 200) setWebSocketReady(true)
       } else if (parsed.key === 'chat') {
         const payload = outbound[parsed.key].parse(parsed.data)
-        setMessages((prevState) => [...prevState, payload])
+        setMessages((prevState) => {
+          const nextState = [...prevState, payload]
+          if (nextState.length > config.multiplayer.max_messages) {
+            nextState.shift()
+          }
+
+          return nextState
+        })
       } else if (parsed.key === 'players') {
         const payload = outbound[parsed.key].parse(parsed.data)
         setPlayers(payload)

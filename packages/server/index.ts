@@ -1,4 +1,4 @@
-import { connection, /*inbound,*/ WebSocketCloseCodes } from '../client/types/mod.ts'
+import { basePacket, connection, inbound, /*inbound,*/ WebSocketCloseCodes } from '../client/types/mod.ts'
 import createPacket from './utils/create-packet.ts'
 
 type TSocketConnections = {
@@ -74,9 +74,20 @@ Deno.serve({ port: 1337 }, (req) => {
       socket.send('pong')
     }
 
-    // try {
-    //   const object = JSON.parse(event.data)
-    //   const parsed = basePacket.parse(object)
+    try {
+      const object = JSON.parse(event.data)
+      const parsed = basePacket.parse(object)
+
+      if (parsed.key === 'chat') {
+        const { message } = inbound.chat.parse(parsed.data)
+        console.log('chat:', parsed)
+
+        broadcast(createPacket('chat', {
+          type: 'player',
+          origin: username,
+          message: message
+        }))
+      }
     //
     //   if (parsed.key === 'set_username') {
     //     const result = inbound.set_username.safeParse(parsed.data)
@@ -92,10 +103,10 @@ Deno.serve({ port: 1337 }, (req) => {
     //   } else {
     //     // invalid/unhandled packet key
     //   }
-    // } catch (_) {
+    } catch (_) {
     //   // fatal error such as json.parse from client data
     //   return
-    // }
+    }
   })
 
   return response
