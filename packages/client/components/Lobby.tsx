@@ -4,7 +4,7 @@ import { useContext } from 'react'
 import WebSocketContext from '~/lib/context/WebSocketContext.ts'
 
 export default function Lobby() {
-  const { messages } = useContext(WebSocketContext)
+  const { messages, players } = useContext(WebSocketContext)
 
   return <Layout variant="wide">
     <div style={{
@@ -16,10 +16,9 @@ export default function Lobby() {
       gap: '.5em'
     }}>
       <Panel style={{ gridArea: 'players' }}>
-        <h2>Online Players (0)</h2>
+        <h2>Online Players ({players.length})</h2>
         <ul>
-          <li>Jane_Doe</li>
-          <li><strong>John_Doe (you)</strong></li>
+          {players.map((player) => <li key={player}>{player}</li>)}
         </ul>
       </Panel>
       <Panel style={{ gridArea: 'controls' }}>

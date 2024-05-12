@@ -7,10 +7,12 @@ export interface TWebSocketContext {
 
   webSocket?: WebSocket
   messages: Array<z.infer<typeof outbound.chat>>
+  players: z.infer<typeof outbound.players>
 }
 
 const WebSocketContext = createContext<TWebSocketContext>({
-  messages: []
+  messages: [],
+  players: []
 })
 
 export default WebSocketContext

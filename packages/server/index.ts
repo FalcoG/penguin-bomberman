@@ -1,10 +1,15 @@
 import { connection, /*inbound,*/ WebSocketCloseCodes } from '../client/types/mod.ts'
-import createPacket from "./utils/create-packet.ts";
+import createPacket from './utils/create-packet.ts'
 
 type TSocketConnections = {
   [key: string]: WebSocket
 }
 const connections: TSocketConnections = {}
+const broadcast = (packet: string) => {
+  Object.values(connections).forEach(socket => {
+    socket.send(packet)
+  })
+}
 
 Deno.serve({ port: 1337 }, (req) => {
   if (req.headers.get('upgrade') != 'websocket')
@@ -29,6 +34,7 @@ Deno.serve({ port: 1337 }, (req) => {
     }
 
     console.log(`${username} connected!`)
+    broadcast(createPacket('player_connect', username))
     connections[username] = socket
     validSession = true
 
@@ -46,6 +52,10 @@ Deno.serve({ port: 1337 }, (req) => {
         }
       )
     )
+
+    socket.send(
+      createPacket('players', Object.keys(connections))
+    )
   })
 
   socket.addEventListener('close', () => {
@@ -53,6 +63,8 @@ Deno.serve({ port: 1337 }, (req) => {
 
     console.log(`${username} disconnected!`)
     delete connections[username]
+
+    broadcast(createPacket('player_disconnect', username))
   })
 
   socket.addEventListener('message', (event) => {

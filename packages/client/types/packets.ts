@@ -11,13 +11,13 @@ const connection = z.object({
 })
 
 const basePacket = z.object({
+  // todo: make key based on 'outbound'/'inbound'
   key: z.string(), // alpha(non numeric)
   data: z.any()
 })
 
 // client to server
-const inbound = {
-}
+const inbound = {}
 
 // server to client
 const outbound = {
@@ -28,7 +28,9 @@ const outbound = {
     type: z.enum(['system', 'player']),
     message: z.string()
   }),
-  players: z.array(username)
+  players: z.array(username),
+  player_connect: username,
+  player_disconnect: username,
 }
 
 export { basePacket, connection, inbound, outbound }
