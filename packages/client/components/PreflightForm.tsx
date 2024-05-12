@@ -1,56 +1,55 @@
 import InputFieldDescription from '~/components/form/InputFieldDescription.tsx'
 import InputFieldError from '~/components/form/InputFieldError.tsx'
-import { basePacket, connection as connectionPacket, outbound } from '~/types/packets.ts'
-import { useState, useContext, useCallback, useRef } from 'react'
+import { connection as connectionPacket } from '~/types/packets.ts'
+import { useState, useContext, useCallback, useEffect } from 'react'
 import z, { ZodError } from 'zod'
 import WebSocketContext from '~/lib/context/WebSocketContext.ts'
 import { WebSocketCloseCodes } from '~/types/websockets.ts'
 
 const PreflightForm = () => {
-  const connection = useRef<WebSocket | undefined>(undefined)
   const {
     webSocket,
     setWebSocket
   } = useContext(WebSocketContext)
 
   const handleValidUsername = useCallback(({ username }: z.infer<typeof connectionPacket>) => {
-    if (connection.current || setWebSocket === undefined || webSocket) return
+    if (setWebSocket === undefined || webSocket) return
 
     const conn = new WebSocket(`ws://localhost:1337/join?username=${username}`)
+    setWebSocket(conn)
+  }, [setWebSocket, webSocket])
 
-    conn.onerror = () => {
+  useEffect(() => {
+    if (!webSocket) return
+
+    const onError = () => {
       setError(new Error('The game service is unresponsive'))
-
-      connection.current = undefined
     }
-    conn.onopen = (e) => {
-      console.log('n-err??', e)
+
+    const onOpen = (e: WebSocketEventMap['open']) => {
+      console.log('websocket connection opened', e)
       setError(null)
     }
-    conn.onclose = (e) => {
+
+    const onClose = (e: WebSocketEventMap['close']) => {
       console.log('closed by remote', e)
       if (e.code === WebSocketCloseCodes.DuplicateUsername) {
-        setError(new Error(`The name <b>"${username}"</b> is already being used`))
+        setError(new Error(e.reason))
       } else {
         setError(new Error(`Game service unavailable`))
       }
-
-      connection.current = undefined
-    }
-    conn.onmessage = (e) => {
-      const object = JSON.parse(e.data)
-      const parsed = basePacket.parse(object)
-
-      if (parsed.key === 'connect') {
-        const { status } = outbound.connect.parse(parsed.data)
-
-        if (status === 200) setWebSocket(conn)
-      }
     }
 
-    connection.current = conn
-  }, [setWebSocket, webSocket])
+    webSocket.addEventListener('open', onOpen)
+    webSocket.addEventListener('close', onClose)
+    webSocket.addEventListener('error', onError)
 
+    return () => {
+      webSocket.removeEventListener('open', onOpen)
+      webSocket.removeEventListener('close', onClose)
+      webSocket.removeEventListener('error', onError)
+    }
+  }, [webSocket])
 
   const [error, setError] = useState<Error | ZodError | null>(null)
   return <form

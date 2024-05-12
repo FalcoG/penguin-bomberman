@@ -23,7 +23,12 @@ const inbound = {
 const outbound = {
   connect: z.object({
     status: z.literal(200)
-  })
+  }),
+  chat: z.object({
+    type: z.enum(['system', 'player']),
+    message: z.string()
+  }),
+  players: z.array(username)
 }
 
 export { basePacket, connection, inbound, outbound }

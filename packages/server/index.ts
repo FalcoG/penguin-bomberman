@@ -1,5 +1,5 @@
-import { z } from 'zod'
-import { basePacket, connection, /*inbound,*/ outbound, WebSocketCloseCodes } from '../client/types/mod.ts'
+import { connection, /*inbound,*/ WebSocketCloseCodes } from '../client/types/mod.ts'
+import createPacket from "./utils/create-packet.ts";
 
 type TSocketConnections = {
   [key: string]: WebSocket
@@ -25,24 +25,27 @@ Deno.serve({ port: 1337 }, (req) => {
   socket.addEventListener('open', () => {
     if (!isUsernameUnique) {
       console.log(`user rejected, duplicate username`, WebSocketCloseCodes.DuplicateUsername)
-      return socket.close(WebSocketCloseCodes.DuplicateUsername, 'Username is already taken')
+      return socket.close(WebSocketCloseCodes.DuplicateUsername, `The name "${username}" is already taken`)
     }
 
     console.log(`${username} connected!`)
     connections[username] = socket
     validSession = true
 
-    // todo: simplify base packet + packet construction, with better typing
-    const response : z.infer<typeof outbound.connect> = {
-      status: 200
-    }
+    socket.send(
+      createPacket('connect', {
+          status: 200
+        }
+      )
+    )
 
-    const packet: z.infer<typeof basePacket> = {
-      key: 'connect',
-      data: response
-    }
-
-    socket.send(JSON.stringify(packet))
+    socket.send(
+      createPacket('chat', {
+          type: 'system',
+          message: 'Welcome to penguin bomberman'
+        }
+      )
+    )
   })
 
   socket.addEventListener('close', () => {
@@ -54,7 +57,7 @@ Deno.serve({ port: 1337 }, (req) => {
 
   socket.addEventListener('message', (event) => {
     if (!validSession) return void
-    console.log('client message', event.data)
+      console.log('client message', event.data)
     if (event.data === 'ping') {
       socket.send('pong')
     }

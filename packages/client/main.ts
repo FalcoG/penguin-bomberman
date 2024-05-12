@@ -1,5 +1,5 @@
 /** @format */
 
-import { bootstrap } from "aleph/react";
+import { bootstrap } from 'aleph/react'
 
-bootstrap();
+bootstrap()
