@@ -3,13 +3,22 @@ import RenderContext from '~/lib/context/RenderContext.ts'
 import { TFrameTick, TRenderContext } from '~/types/context.ts'
 import { TFrameDelta, TFrameNumber, TFrameTimestamp } from '~/types/game.ts'
 
-type TScreenProps = { children: React.ReactNode, pixelSize: number }
+type TScreenProps = { children: React.ReactNode, pixelSize: number, width?: number, height?: number }
 
-const Screen = ({ children, pixelSize }: TScreenProps) => {
+const Screen = ({ children, pixelSize, width, height }: TScreenProps) => {
   const renderQueueRef = useRef<{ [key: string]: TFrameTick }>({ })
 
-  const cssStyle = {
-    fontSize: `${pixelSize}px`
+  const cssStyle: React.CSSProperties = {
+    fontSize: `${pixelSize}px`,
+    // border: '.2rem solid black',
+    position: 'relative',
+    height: height ? `${height}em` : '100vh',
+    width: width ? `${width}em` : '100vw',
+    margin: '0 auto',
+    // background: `url('/assets/game/background.svg') right`,
+    // backgroundSize: 'cover',
+    // backgroundColor: '#222',
+    userSelect: 'none' // dragging the game elements would be odd - is there a reason to not block this?
   }
 
   const frameIdRef = useRef<TFrameNumber>(0)
