@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import * as melon from 'https://esm.run/melonjs'
 import GameLayout from '~/components/GameLayout.tsx'
-import { TGameState } from '~/types/context.ts'
 import { AssetsCache, AssetsConfig, TPoint } from '~/types/game.ts'
 import config from '~/lib/config.ts'
 import melonLoadAssets from '~/lib/utils/melon-load-assets.ts'
 import { indexToPosition } from '~/lib/utils/point.ts'
 import GameStateContext from '~/lib/context/GameStateContext.ts'
 import MelonPlayer from '~/components/game/MelonPlayer.tsx'
+import createInitialGrid from '~/lib/utils/create-initial-grid.ts'
 
 let ticker = 0
 
@@ -22,25 +22,7 @@ export default function Game() {
   const [text, setText] = useState<melon.Text>()
 
   // game grid constructor
-  const [grid, setGrid] = useState(() => {
-    const newGridLayout: TGameState['grid'] = []
-
-    for (let ix = 0; config.grid.size.width > ix; ix++) {
-      const rows = config.grid.ice_immutable_pattern.length
-
-      for (let iy = 0; config.grid.size.height > iy; iy++) {
-        const row = config.grid.ice_immutable_pattern[iy % rows]
-        const cell = row[ix % row.length]
-
-
-        const index = ix + config.grid.size.width * iy
-        newGridLayout[index] = cell ? 'immutable_ice' : false
-        // console.log('should ice', cell, 'row', row, index, ix, iy)
-      }
-    }
-
-    return newGridLayout
-  })
+  const [grid, setGrid] = useState(createInitialGrid())
 
   const [position, setPosition] = useState<TPoint>({
     x: 0,

@@ -18,7 +18,9 @@ const Screen = ({ children, pixelSize }: TScreenProps) => {
     const frame = frameIdRef.current
     const delta: TFrameDelta = timestamp - (deltaRef.current || 0)
 
-    Object.values(renderQueueRef.current).forEach((cb) => cb({ delta, frame, timestamp }))
+    Object.values(renderQueueRef.current).forEach((callback) => {
+      callback({ delta, frame, timestamp })
+    })
 
     deltaRef.current = timestamp
 
@@ -34,12 +36,15 @@ const Screen = ({ children, pixelSize }: TScreenProps) => {
   }, [])
 
   const addTick = useCallback<TRenderContext['addTick']>((callback) => {
+    const setCallback = (callback: TFrameTick) => {
+      renderQueueRef.current[key] = callback
+    }
     const key = window.crypto.randomUUID()
     console.info('render: +tick', key)
 
-    renderQueueRef.current[key] = callback
+    setCallback(callback)
 
-    return key
+    return { key: key, update: setCallback }
   }, [])
 
   const removeTick = useCallback<TRenderContext['removeTick']>((key) => {
