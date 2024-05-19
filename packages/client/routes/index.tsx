@@ -9,7 +9,7 @@ import Panel from '~/components/Panel.tsx'
 import { basePacket, inbound, outbound } from '~/types/packets.ts'
 import Lobby from '~/components/Lobby.tsx'
 import { TWebSocketContext } from '~/lib/context/WebSocketContext.ts'
-import config from "~/lib/config.ts";
+import config from '~/lib/config.ts'
 
 export default function Index() {
   const [webSocket, setWebSocket] = useState<WebSocket | undefined>()
