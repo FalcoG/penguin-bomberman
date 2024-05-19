@@ -8,10 +8,13 @@ export interface TGameState {
   setPlayerPosition: React.Dispatch<React.SetStateAction<TPoint>>
 }
 
-export type TCustomEventTickDetail = { delta: TFrameDelta, timestamp: TFrameTimestamp, frame: TFrameNumber }
-export type TCustomEventTick = CustomEvent<TCustomEventTickDetail>
-export type TCustomEventTickListener = CustomEventInit<TCustomEventTickDetail>
+export type TFrameTickProps = { delta: TFrameDelta, timestamp: TFrameTimestamp, frame: TFrameNumber }
+export type TFrameTick = (data: TFrameTickProps) => void
+export type TAddFrameTick = (callback: TFrameTick) => string
+export type TRemoveFrameTick = (key: string) => void
+
 export interface TRenderContext {
   pixelSize: number
-  screen: HTMLDivElement | null
+  addTick: TAddFrameTick,
+  removeTick: TRemoveFrameTick,
 }

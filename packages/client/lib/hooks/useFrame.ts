@@ -1,35 +1,30 @@
-import { useContext, useEffect, useMemo } from 'react'
+import { useContext, useEffect, useMemo, useRef } from 'react'
 import RenderContext from '~/lib/context/RenderContext.ts'
-import { TCustomEventTickListener, TCustomEventTickDetail } from '~/types/context.ts'
+import { TAddFrameTick, TFrameTick } from '~/types/context.ts'
 
-type TFrameCallback = (detail: TCustomEventTickDetail) => void
-
-function useFrame(callback: TFrameCallback) {
+function useFrame(callback: TFrameTick) {
   const renderContext = useContext(RenderContext)
+  const callbackRef = useRef<ReturnType<TAddFrameTick> | null>(null)
 
-  const screen = useMemo(() => {
-    return renderContext != null && renderContext.screen != null && renderContext.screen
+  const ready = useMemo(() => {
+    return renderContext != null && renderContext.addTick != null && renderContext.removeTick != null && renderContext
   }, [renderContext])
 
   useEffect(() => {
-    if (!screen) return
+    if (!ready || callbackRef.current) return
 
     console.log('frame listener init')
-
-    const tick = (e: TCustomEventTickListener) => {
-      if (!e.detail) return
-
-      callback(e.detail)
-    }
-
-    screen.addEventListener('tick', tick)
+    callbackRef.current = ready.addTick(callback)
 
     return () => {
       console.log('frame listener exit')
 
-      screen.removeEventListener('tick', tick)
+      if (callbackRef.current) {
+        ready.removeTick(callbackRef.current)
+        callbackRef.current = null
+      }
     }
-  }, [screen])
+  }, [ready])
 }
 
 export default useFrame

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import Sprite from '~/components/game/Sprite.tsx'
+import Sprite from '~/components/game/engine/Sprite.tsx'
 import useFrame from '~/lib/hooks/useFrame.ts'
 
 const CustomDemoSprite = () => {
