@@ -22,14 +22,22 @@ code {
     monospace;
 }
 
-input, button {
-  font-size: 1.4rem;
-  border-radius: 2em;
-  padding: 1em;
-  border: .2em solid var(--color-shade-7);
-  background: var(--color-shade-0);
+input {
   color: var(--color-shade-7);
+  border: .2em solid var(--color-shade-7);
+  border-radius: 2em;
+  font-size: 1.4rem;
+  padding: 1em;
+  background: var(--color-shade-0);
   font-weight: bold;
+}
+
+button {
+  color: var(--color-shade-0);
+  background: var(--color-triadic_2-4);
+  border: .2em solid var(--color-shade-7);
+  border-radius: 2em;
+  cursor: pointer;
 }
 
 *:focus {
@@ -50,13 +58,15 @@ label {
   margin-bottom: .3rem;
 }
 
-button {
+form button {
+  font-size: 1.4rem;
+  padding: 1em;
+  font-weight: bold;
   background: var(--color-triadic_2-4);
   color: var(--color-shade-0);
-  cursor: pointer;
 }
 
-button:active {
+form button:active {
   background: var(--color-triadic_2-5);
 }
 

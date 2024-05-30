@@ -18,7 +18,6 @@ export type TAddFrameTick = (callback: TFrameTick, deps: React.DependencyList) =
 export type TRemoveFrameTick = (key: string) => void
 
 export interface TRenderContext {
-  pixelSize: number
   addTick: TAddFrameTick,
   removeTick: TRemoveFrameTick,
 }

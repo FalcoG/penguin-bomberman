@@ -3,13 +3,13 @@ import RenderContext from '~/lib/context/RenderContext.ts'
 import { TFrameTick, TRenderContext } from '~/types/context.ts'
 import { TFrameDelta, TFrameNumber, TFrameTimestamp } from '~/types/game.ts'
 
-type TScreenProps = { children: React.ReactNode, pixelSize: number, width?: number, height?: number }
+type TScreenProps = { children: React.ReactNode, pixelSize?: number, width?: number, height?: number }
 
 const Screen = ({ children, pixelSize, width, height }: TScreenProps) => {
   const renderQueueRef = useRef<{ [key: string]: TFrameTick }>({ })
 
   const cssStyle: React.CSSProperties = {
-    fontSize: `${pixelSize}px`,
+    fontSize: pixelSize ? `${pixelSize}px` : '1em',
     // border: '.2rem solid black',
     position: 'relative',
     height: height ? `${height}em` : '100vh',
@@ -61,7 +61,7 @@ const Screen = ({ children, pixelSize, width, height }: TScreenProps) => {
     console.info('render: -tick', key)
   }, [])
 
-  return <RenderContext.Provider value={{ pixelSize, addTick, removeTick }}>
+  return <RenderContext.Provider value={{ addTick, removeTick }}>
     <div style={cssStyle}>
       {children}
     </div>

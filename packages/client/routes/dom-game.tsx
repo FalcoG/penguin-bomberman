@@ -16,7 +16,7 @@ const DomGame = () => {
     <b onClick={(() => setCount((prevState) => prevState + 1))}>klick mich {count}</b>
     <HeaderGame/>
     <GamePictureFrame>
-      <Screen pixelSize={64} width={config.grid.size.width} height={config.grid.size.height}>
+      <Screen width={config.grid.size.width} height={config.grid.size.height}>
         <PerfOverlay/>
         <Scene/>
         {/*<Sprite x={1} y={2} size={1} key="demo"/>*/}

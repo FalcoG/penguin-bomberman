@@ -1,11 +1,14 @@
 import Layout from '~/components/Layout.tsx'
 import Panel from '~/components/Panel.tsx'
-import { useContext } from 'react'
+import { useCallback, useContext } from 'react'
 import WebSocketContext from '~/lib/context/WebSocketContext.ts'
 import ChatForm from '~/components/ChatForm.tsx'
 
 export default function Lobby() {
-  const { messages, players } = useContext(WebSocketContext)
+  const { messages, players, webSocket, player } = useContext(WebSocketContext)
+  const invitePlayer = useCallback((username: string) => {
+    console.log('send invite to', username)
+  }, [webSocket])
 
   return <Layout variant="wide">
     <div style={{
@@ -19,7 +22,9 @@ export default function Lobby() {
       <Panel style={{ gridArea: 'players' }}>
         <h2>Online Players ({players.length})</h2>
         <ul>
-          {players.map((player) => <li key={player}>{player}</li>)}
+          {players.map((playerName) => <li key={playerName}>{playerName} {player === playerName
+            ? <b>(you)</b>
+            : <button onClick={() => invitePlayer(playerName)}>invite to game</button>}</li>)}
         </ul>
       </Panel>
       <Panel style={{ gridArea: 'controls' }}>

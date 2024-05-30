@@ -12,7 +12,8 @@ const GamePictureFrame = ({ children }: TGamePictureFrameProps) => {
     backgroundColor: 'black',
     outline: '.4rem solid black',
     borderRadius: '.5rem',
-    padding: '2rem'
+    padding: '.6em',
+    fontSize: '6.2vmin',
   }
 
   return <div style={cssStyle}>

@@ -17,6 +17,7 @@ export default function Index() {
   const [webSocketReady, setWebSocketReady] = useState(false)
   const [messages, setMessages] = useState<TWebSocketContext['messages']>([])
   const [players, setPlayers] = useState<TWebSocketContext['players']>([])
+  const [player, setPlayer] = useState<TWebSocketContext['player']>()
 
   useEffect(() => {
     if (!webSocket) return
@@ -53,7 +54,16 @@ export default function Index() {
       if (parsed.key === 'connect') {
         const { status } = outbound.connect.parse(parsed.data)
 
-        if (status === 200) setWebSocketReady(true)
+        if (status === 200) {
+
+          const username = new URL(webSocket.url).searchParams.get('username')
+          if (username == null) {
+            setError('Unable to determine username')
+          } else {
+            setWebSocketReady(true)
+            setPlayer(username)
+          }
+        }
       } else if (parsed.key === 'chat') {
         const payload = outbound[parsed.key].parse(parsed.data)
         setMessages((prevState) => {
@@ -90,7 +100,7 @@ export default function Index() {
   }, [webSocket])
 
   return (
-    <WebSocketContext.Provider value={{ webSocket, setWebSocket, messages, players }}>
+    <WebSocketContext.Provider value={{ webSocket, setWebSocket, messages, players, player }}>
       {!webSocketReady && (
         <Layout>
           <Panel>
