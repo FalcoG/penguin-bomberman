@@ -1,15 +1,8 @@
 import { basePacket, connection, inbound, /*inbound,*/ WebSocketCloseCodes } from '../client/types/mod.ts'
 import createPacket from './utils/create-packet.ts'
+import WebSocketHelper from './WebSocketHelper.ts'
 
-type TSocketConnections = {
-  [key: string]: WebSocket
-}
-const connections: TSocketConnections = {}
-const broadcast = (packet: string) => {
-  Object.values(connections).forEach(socket => {
-    socket.send(packet)
-  })
-}
+const webSocketHelper = new WebSocketHelper()
 
 Deno.serve({ port: 1337 }, (req) => {
   if (req.headers.get('upgrade') != 'websocket')
@@ -22,7 +15,7 @@ Deno.serve({ port: 1337 }, (req) => {
     return new Response(null, { status: 401 })
 
   let validSession = false
-  const isUsernameUnique = !Object.keys(connections).includes(parseUsername.data.username)
+  const isUsernameUnique = !Object.keys(webSocketHelper.getKeys()).includes(parseUsername.data.username)
 
   const username = parseUsername.data.username
   const { socket, response } = Deno.upgradeWebSocket(req)
@@ -34,8 +27,8 @@ Deno.serve({ port: 1337 }, (req) => {
     }
 
     console.log(`${username} connected!`)
-    broadcast(createPacket('player_connect', username))
-    connections[username] = socket
+    webSocketHelper.broadcast(createPacket('player_connect', username))
+    webSocketHelper.add(username, socket)
     validSession = true
 
     socket.send(
@@ -54,7 +47,7 @@ Deno.serve({ port: 1337 }, (req) => {
     )
 
     socket.send(
-      createPacket('players', Object.keys(connections))
+      createPacket('players', webSocketHelper.getKeys())
     )
   })
 
@@ -62,9 +55,8 @@ Deno.serve({ port: 1337 }, (req) => {
     if (!validSession) return
 
     console.log(`${username} disconnected!`)
-    delete connections[username]
-
-    broadcast(createPacket('player_disconnect', username))
+    webSocketHelper.remove(username)
+    webSocketHelper.broadcast(createPacket('player_disconnect', username))
   })
 
   socket.addEventListener('message', (event) => {
@@ -82,30 +74,60 @@ Deno.serve({ port: 1337 }, (req) => {
         const { message } = inbound.chat.parse(parsed.data)
         console.log('chat:', parsed)
 
-        broadcast(createPacket('chat', {
+        webSocketHelper.broadcast(createPacket('chat', {
           type: 'player',
           origin: username,
           message: message
         }))
+      } else if (parsed.key === 'invite') {
+        const invitee = inbound.invite.parse(parsed.data)
+
+        if (!invitee) {
+          // invite all players
+          const connections = webSocketHelper.getKeys([username])
+
+          // inform sender
+          socket.send(createPacket('invite_sent', connections))
+
+          // inform receiver
+          webSocketHelper.broadcast(createPacket('invite_received', [username]), [username])
+        } else {
+          // invite specific player
+
+          // inform sender
+          socket.send(createPacket('invite_sent', [invitee]))
+
+          // inform receiver
+          webSocketHelper.get(invitee).send(createPacket('invite_received', [username]))
+        }
+      } else if (parsed.key === 'invite_cancel') {
+        // todo: inform invited players
+        const player = inbound.invite_cancel.parse(parsed.data)
+
+        // inform sender
+        socket.send(createPacket('invite_cancel', [player]))
+
+        // inform receiver
+        webSocketHelper.get(player).send(createPacket('invite_revoke', [username]))
       }
-    //
-    //   if (parsed.key === 'set_username') {
-    //     const result = inbound.set_username.safeParse(parsed.data)
-    //     let response: z.infer<typeof outbound.set_username>
-    //
-    //     if (result.error) {
-    //       response = { status: 400, error: 'Username does not meet the requirements' }
-    //     } else {
-    //       response = { status: 200 }
-    //     }
-    //
-    //     socket.send(JSON.stringify(response))
-    //   } else {
-    //     // invalid/unhandled packet key
-    //   }
+      //
+      //   if (parsed.key === 'set_username') {
+      //     const result = inbound.set_username.safeParse(parsed.data)
+      //     let response: z.infer<typeof outbound.set_username>
+      //
+      //     if (result.error) {
+      //       response = { status: 400, error: 'Username does not meet the requirements' }
+      //     } else {
+      //       response = { status: 200 }
+      //     }
+      //
+      //     socket.send(JSON.stringify(response))
+      //   } else {
+      //     // invalid/unhandled packet key
+      //   }
     } catch (_) {
-    //   // fatal error such as json.parse from client data
-    //   return
+      //   // fatal error such as json.parse from client data
+      //   return
     }
   })
 
